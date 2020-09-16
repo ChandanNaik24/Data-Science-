@@ -1,0 +1,44 @@
+library(arules) 
+library(arulesViz)
+
+grocery_data<- read.csv(file.choose())
+View(grocery_data)
+
+grocery_n <- apriori(as.matrix(data.frame(grocery_data),parameter=list(support=0.05, confidence = 0.5,minlen=3)) 
+View(grocery_n) 
+
+inspect(head(sort(grocery_n,by="lift"))) 
+inspect(head(sort(grocery_n,by="support"))) 
+inspect(head(sort(grocery_n,by="confidence")))
+
+head(quality(grocery_n)) 
+colfunc <- colorRampPalette(c("black","red", "yellow")) 
+
+plot(grocery_n,method = "scatterplot",jitter=0,col=colfunc(30)) 
+set.seed(103);plot(grocery_n,method = "graph") 
+
+plot(grocery_n,method = "paracoord") 
+plot(grocery_n,method = "grouped matrix",col=colfunc(300)) 
+
+plot(grocery_n,method = "two-key plot",jitter=0) 
+plot(grocery_n,method = "matrix",engine = "3d")# iplots 
+
+grocery_n1 <- apriori(as.matrix(data.frame(grocery_data),parameter=list(support=0.04, confidence = 0.4,minlen=4)) 
+View(grocery_n1) 
+
+inspect(head(sort(grocery_n,by="lift"))) 
+inspect(head(sort(grocery_n,by="support"))) 
+
+inspect(head(sort(grocery_n,by="confidence"))) 
+head(quality(grocery_n)) 
+
+colfunc <- colorRampPalette(c("black","red", "yellow")) 
+plot(grocery_n,method = "scatterplot",jitter=0,col=colfunc(30))
+
+set.seed(103);plot(grocery_n,method = "graph") 
+plot(grocery_n,method = "paracoord") 
+
+plot(grocery_n,method = "grouped matrix",col=colfunc(300)) 
+plot(grocery_n,method = "two-key plot",jitter=0) 
+plot(grocery_n,method = "matrix",engine = "3d")# iplots
+
