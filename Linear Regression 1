@@ -1,0 +1,50 @@
+creditcard <- read.csv(file.choose())
+library(caTools)
+View(creditcard)
+
+creditcardn$card <- as.factor(creditcardn$card)
+creditcardn$owner <- as.factor(creditcardn$owner)
+creditcardn$selfemp <- as.factor(creditcardn$selfemp)
+
+summary(creditcard)
+creditcardn <- creditcard[,c(2:13)] 
+attach(creditcardn)
+View(creditcardn)
+summary(creditcardn)
+
+boxplot(creditcardn)
+library(ggplot2)
+ggplot(creditcardn)
+
+split <- sample.split(creditcardn, SplitRatio = 0.7)
+split   
+
+train <- subset(creditcardn, split== 'TRUE')
+
+test <- subset(creditcardn, split == 'FALSE')
+model <- glm(card~., train, family = "binomial")
+
+model2<- glm(card~.- expenditure , train, family = "binomial") 
+summary(model2) 
+
+res<- predict(model2, train, type = "response")
+table(actualvalue=train$card,predictvalue= res>0.5
+
+res1 <- predict(model2, test, type= "response")
+confusion<- table(actualvalue= test$card, predictvalue = res1>0.5) 
+
+exp(coef(model2))
+(Intercept) reports age income share owneryes selfempyes dependents months
+majorcards active
+
+accuracy<- sum(diag(confusion)/sum(confusion))
+accuracy 
+
+library(ROCR)
+ROCRpred<- prediction(res, train$card)
+ROCRpref<- performance(ROCRpred, "tpr","fpr")
+plot(ROCRpref, colorize = TRUE, print.cutoffs.at = seq(0.1, by = 0.1)) 
+
+confusion1<- table(actualvalue= test$card, predictvalue = res1>0.1)
+accuracy1<- sum(diag(confusion1)/sum(confusion1))  
+accuracy1 
