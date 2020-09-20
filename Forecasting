@@ -1,0 +1,169 @@
+## Loading the dataset  ##
+
+Airline <- read.csv("C:/Users/User/Downloads/Airlines+Data.csv")
+View(Airline)
+
+## Creating 96 dummy variables ##
+
+X<- data.frame(outer(rep(month.abb,length = 96), month.abb,"==") + 0 )
+View(X)
+
+## Assigning month names ##
+
+colnames(X)<-month.abb
+View(X)
+Airline<-cbind(Airline,X)
+
+View(Airline)
+colnames(Airline)
+Airline["t"]<- 1:96
+View(Airline)
+
+Airline["log_Passenger"]<-log(Airline["Passengers"])
+Airline["t_square"]<-Airline["t"]*Airline["t"]
+attach(Airline)
+
+train<-Airline[1:84,]
+test<-Airline[85:96,]
+
+## Linear Model ##
+
+Airmodel <- lm(Passengers~t,data=train)
+summary(Airmodel)
+
+## Prediction Linear Model ##
+
+Airmodel_pred<-data.frame(predict(Airmodel,interval='predict',newdata =test))
+View(Airmodel_pred)
+
+## Squareroot Mean of Linear Model ##
+
+rmse_LinearAirmodel<-sqrt(mean((test$Passengers-Airmodel_pred$fit)^2,na.rm = T))
+rmse_LinearAirmodel
+
+## Exponential Model ##
+
+expo_Airmodel<-lm(log_Passenger~t,data=train)
+summary(expo_Airmodel)
+
+## Prediction of Exponential Model ##
+
+expo_Airpred<-data.frame(predict(expo_Airmodel,interval='predict',newdata=test))
+summary(expo_Airpred)
+
+## Squareroot mean of Exponential Model ##
+
+rmse_expo_Airline<-sqrt(mean((test$Passengers-exp(expo_Airpred$fit))^2,na.rm = T))
+rmse_expo_Airline
+
+## Quadratic Model ##
+
+Quad_Airlinemodel<-lm(Passengers~t+t_square,data=train)
+summary(Quad_Airlinemodel)
+
+## Prediction of Quadratic Data ##
+
+Quad_Airlinepred<-data.frame(predict(Quad_Airlinemodel,interval='predict',newdata=test))
+rmse_AirlineQuad<-sqrt(mean((test$Passengers-Quad_Airlinepred$fit)^2,na.rm=T))
+rmse_AirlineQuad 
+
+## Additive Seasonality ##
+
+Add_sea_Linear_Airlinemodel<lm(Passengers~t+Jan+Feb+Mar+Apr+May+Jun+Jul+Aug+Sep+Oct+Nov,data=train)
+summary(Add_sea_Linear_Airlinemodel)
+
+## Prediction of Add_sea_Linear ##
+
+Add_sea_Linear_Airlinepred<-data.frame(predict(Add_sea_Linear_Airlinemodel,interval='predict',newdata=test))
+summary(Add_sea_Linear_Airlinepred)
+
+## Square Root Mean ##
+
+rmse_Add_sea_Linear_Airline1<-sqrt(mean((test$Passengers-Add_sea_Linear_Airlinepred$fit)^2,na.rm=T))
+rmse_Add_sea_Linear_Airline1
+summary(rmse_Add_sea_Linear_Airline1)
+
+## Additive Seasonality with Linear ##
+
+Add_sea_Linear_Airlinemodel<-lm(Passengers~t+Jan+Feb+Mar+Apr+May+Jun+Jul+Aug+Sep+Oct+Nov,data=train)
+summary(Add_sea_Linear_Airlinemodel)
+
+## Prediction ##
+
+Add_sea_Linear_Airlinepred<-data.frame(predict(Add_sea_Linear_Airlinemodel,interval='predict',newdata=test))
+summary(Add_sea_Linear_Airlinepred)
+
+## Square root mean ##
+
+rmse_Add_sea_Linear_Airline2<-sqrt(mean((test$Passengers-Add_sea_Linear_Airlinepred$fit)^2,na.rm=T))
+rmse_Add_sea_Linear_Airline2
+summary(rmse_Add_sea_Linear_Airline2)
+
+##Additive Seasonality with Quadratic ##
+
+Add_sea_Quad_model<-lm(Passengers~t+t_square+Jan+Feb+Mar+Apr+May+Jun+Jul+Aug+Sep+Oct+Nov,data=train)
+summary(Add_sea_Quad_model)
+
+## Prediction of Add Quad ##
+
+Add_sea_Quad_pred<-data.frame(predict(Add_sea_Quad_model,interval='predict',newdata=test))
+summary(Add_sea_Quad_pred)
+
+## Square Root Mean of Add Quad ##
+
+rmse_Add_sea_Quad<-sqrt(mean((test$Passengers-Add_sea_Quad_pred$fit)^2,na.rm=T))
+rmse_Add_sea_Quad
+summary(rmse_Add_sea_Quad)
+
+## Multiplicative Seasonality ##
+
+multi_sea_Airline_model<-lm(log_Passenger~Jan+Feb+Mar+Apr+May+Jun+Jul+Aug+Sep+Oct+Nov,data = train)
+summary(multi_sea_Airline_model)
+
+## Prediction ##
+
+multi_sea_Airline_pred<-data.frame(predict(multi_sea_Airline_model,newdata=test,interval='predict'))
+summary(multi_sea_Airline_pred)
+
+## Square Root Mean ## 
+
+rmse_multi_sea_Airline<-sqrt(mean((test$Passengers-exp(multi_sea_Airline_pred$fit))^2,na.rm = T))
+rmse_multi_sea_Airline 
+
+## Multiplicative Seasonality Linear trend ##
+
+multi_add_sea_model5<-lm(log_Passenger~t+Jan+Feb+Mar+Apr+May+Jun+Jul+Aug+Sep+Oct+Nov,data = train)
+summary(multi_add_sea_model5) 
+
+## Prediction of Multiplicative ##
+
+multi_add_sea_pred7<-data.frame(predict(multi_add_sea_model5,newdata=test,interval='predict'))
+summary(multi_add_sea_pred7)
+
+## Square Root Mean Multiplicative ##
+rmse_multi_add_sea8<-sqrt(mean((test$Passengers-exp(multi_add_sea_pred7$fit))^2,na.rm = T))
+rmse_multi_add_sea8
+
+
+## Preparing table on model and it's RMSE values  ##
+
+table_rmse<-data.frame(c("rmse_LinearAirmodelr","rmse_expo_Airline","rmse_AirlineQuad","rmse_Add_sea_Linear_Airline1","rmse_Add_sea_Linear_Airline2","rmse_Add_sea_Quad","rmse_multi_sea_Airline"),
+c("rmse_LinearAirmodelr","rmse_expo_Airline","rmse_AirlineQuad","rmse_Add_sea_Linear_Airline1","rmse_Add_sea_Linear_Airline2","rmse_Add_sea_Quad","rmse_multi_sea_Airline"))
+View(table_rmse)
+colnames(table_rmse)<-c("model","RMSE")
+View(table_rmse)
+
+# Multiplicative Seasonality Linear trend  has least RMSE value
+
+new_model12<-lm(log_Passenger~t+Jan+Feb+Mar+Apr+May+Jun+Jul+Aug+Sep+Oct+Nov,data = Airline)
+new_model_pred13<-data.frame(predict(new_model12,newdata=Airline,interval='predict'))
+new_model_fin <- exp(new_model12$fitted.values)
+
+View(new_model_fin)
+pred_res<- predict(arima(Passengers,order=c(1,0,0)),n.ahead = 12)
+Month <- as.data.frame(Airline$Month)
+
+Final <- as.data.frame(cbind(Month,Airline$Passengers,new_model_fin))
+colnames(Final) <-c("Month","Passengers","New_Pred_Value")
+Final <- as.data.frame(Final)
+View(Final)
