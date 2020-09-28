@@ -1,0 +1,32 @@
+Q1.) Hypothesis assignment cutlet data: 
+Assumption: P value of two population is > 0.05, which indicates we will apply alternative hypothesis over null hypothesis. Action needs to be taken. 
+
+cutlet.diameter<- read.csv(file.choose()) 
+View(cutlet.diameter) 
+str(cutlet.diameter) 
+attach(cutlet.diameter) 
+mean(cutlet.diameter$Unit.A) 
+mean(cutlet.diameter$Unit.B) 
+var(cutlet.diameter$Unit.A) 
+var(cutlet.diameter$Unit.B) 
+library(nortest) 
+ad.test(cutlet.diameter$Unit.A) 
+ad.test(cutlet.diameter$Unit.B) 
+var.test(Unit.A,Unit.B) 
+t.test(Unit.A,Unit.B,alternative = "greater",conf.level = 0.95,correct=FALSE)
+
+Q2.)  Laboratories data: 
+      Assumptions: P value of stacked data population is > 0.05, which indicates we will apply alternative hypothesis  over null hypothesis. Action needs to be taken. 
+
+
+lab_report<- read.csv(file.choose()) 
+View(lab_report) 
+Stacked_Data <- stack(lab_report) 
+View(Stacked_Data) 
+attach(Stacked_Data) 
+library(nortest)
+ad.test(Stacked_Data$values)
+library(car) 
+leveneTest(Stacked_Data$values~Stacked_Data$ind, data = Stacked_Data) 
+Anova_results <- aov(values~ind,conf.level=0.95,data = Stacked_Data) 
+summary(Anova_results)
