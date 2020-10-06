@@ -1,0 +1,24 @@
+library(arules) 
+library(arulesViz) 
+
+book <- read.csv(file.choose()) 
+View(book) 
+
+book_n <- apriori(as.matrix(book),parameter=list(support=0.05, confidence = 0.5,minlen=3)) 
+inspect(head(sort(book_n, by="lift"))) 
+inspect(head(sort(book_n, by = "confidence"))) 
+inspect(head(sort(book_n, by = "support"))) 
+inspect(head(sort(book_n, by = c("count","lift")))) 
+
+book_n1 <- apriori(as.matrix(book),parameter=list(support=0.04, confidence = 0.4,minlen=4)) 
+inspect(head(sort(book_n1, by="lift"))) 
+inspect(head(sort(book_n1, by = "confidence")))
+inspect(head(sort(book_n1, by = "support"))) 
+inspect(head(sort(book_n1, by = c("count","lift")))) 
+head(quality(book_n)) 
+
+colfunc <- colorRampPalette(c("black","red", "yellow")) 
+plot(book_n,method = "graph",jitter=0,col=colfunc(30)) 
+plot(book_n,method = "paracoord") 
+plot(book_n,method = "grouped matrix",col=colfunc(300)) 
+plot(book_n,method = "two-key plot",jitter=0)
