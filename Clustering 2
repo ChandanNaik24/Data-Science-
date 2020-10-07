@@ -1,0 +1,36 @@
+crime_data<- read.csv(file.choose()) 
+View(crime_data) 	
+str(crime_data) 
+attach(crime_data) 
+
+install.packages("kselection") 
+library(kselection)
+
+K<- kselection(crime_data[,-1], parallel = TRUE, k_threshold = 0.9, max_centers=12) 
+K$max_centers 
+
+library(doParallel) 
+registerDoParallel(cores = 4) 
+
+k <- kselection(crime_data[,-1], parallel = TRUE, k_threshold = 0.9, max_centers=12)  
+ k 
+normalized_data<- scale(crime_data[1:50,c(2:5)]) 
+
+View(normalized_data) 
+
+library(animation) 
+km <- kmeans.ani(normalized_data, 2) 
+wss = (nrow(normalized_data)-1)*sum(apply(normalized_data, 2, var)) 
+for (i in 2:5) wss[i] = sum(kmeans(normalized_data, centers=i)$withinss) 
+plot(1:5, wss, type="b", xlab="Number of Clusters", ylab="Within groups sum of squares") 
+d<- dist(normalized_data,method = "euclidean") 
+fit<- hclust(d,method = "complete") 
+
+plot(fit) 
+plot(fit,hang = 1) 
+groups<- cutree(fit,k=4) 
+rect.hclust(fit,k=4,border="red") 
+clusters<- as.matrix(groups) 
+final<- data.frame(crime_data,clusters)  
+final1<- final[,c(ncol(final),1:(ncol(final)-1))] 
+View(final1)
