@@ -1,0 +1,689 @@
+libraries to include
+import tensorflow as tf
+import os
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy import stats
+
+## reading data set
+data = pd.read_csv("D:\\ExcelR\\project\\Data.csv",encoding='latin1',low_memory=False)
+
+# data set information
+data.head()             
+data.tail()            
+data.info()             
+len(data.columns)      
+data.describe()         
+data.size               
+len(data)               
+print(data.shape)     
+data.nunique()          
+data_cat.columns.tolist()   
+data.dtypes            
+print(data.describe())  
+data.isnull()          
+data.isnull().sum()    
+
+
+#### subtype of all catagorical variable
+data['terms'].unique()
+data['State'].unique()
+data['purpose'].unique()
+data['grade'].unique()
+data['sub_grade'].unique()
+data['Emp_designation'].unique()
+data['Experience'].unique()
+data['home_ownership'].unique()
+data['verification_status'].unique()
+data['application_type'].unique()
+data['verification_status_joint'].unique()
+
+## corelation of dataset
+corelation = data.corr()
+ax = sns.set(rc={'figure.figsize':(20,12)})
+sns.heatmap(corelation, ax = ax, cmap ="YlGnBu", linewidths = 0.1) 
+sns.heatmap(corelation, xticklabels=corelation.columns, yticklabels=corelation.columns, annotate = True)
+
+corelation = data.corr()
+print(corelation["total revol_bal"])    ## co relation between target varibale
+
+data.corr(method ='pearson')            ## co relation between all variable
+
+## dist plot
+sns.distplot(data['total revol_bal'])
+sns.distplot(data['loan_amnt'])
+sns.distplot(data['Rate_of_intrst'])
+sns.distplot(data['annual_inc'])
+sns.distplot(data['tot_colle_amt'])
+sns.distplot(data['tot_colle_amt'])
+
+#### scater plot
+sns.scatterplot(x = 'annual_inc', y = 'total revol_bal', data = data)
+sns.scatterplot(x = 'tot_curr_bal', y = 'total revol_bal', data = data)
+sns.scatterplot(x = 'loan_amnt', y = 'total revol_bal', data = data)
+sns.scatterplot(x = 'tot_curr_bal', y = 'total revol_bal', hue="home_ownership", data = data)
+sns.scatterplot(x = 'Rate_of_intrst', y = 'total revol_bal', hue="grade", data = data)
+sns.scatterplot(x = 'loan_amnt', y = 'total revol_bal', hue="verification_status", data = data)
+sns.scatterplot(x = 'annual_inc', y = 'total revol_bal', hue="application_type", data = data)
+sns.scatterplot(x = 'total_credits', y = 'total revol_bal', hue="home_ownership", data = data)
+
+## bar plot
+fig_dims = (25, 5)
+fig, ax = plt.subplots(figsize=fig_dims)
+sns.barplot(x = "purpose", y = "loan_amnt ", ax=ax, data=data)
+
+sns.barplot(x = 'home_ownership', y = 'total revol_bal', data = data)
+sns.barplot(x = 'home_ownership', y = 'Rate_of_intrst', data = data)
+sns.barplot(x = 'home_ownership', y = 'annual_inc', data = data)
+
+sns.catplot(x="verification_status", y="annual_inc", hue="home_ownership", kind="bar", data=data);
+sns.catplot(x="application_type", y="Rate_of_intrst", hue="grade", kind="bar", data=data);
+sns.catplot(x="application_type", y="Rate_of_intrst", hue="Experience", kind="bar", data=data);
+sns.catplot(x="application_type", y="total revol_bal", hue="verification_status", kind="bar", data=data);
+
+#### box plot
+sns.boxplot(data=data,x=data["total revol_bal"])
+sns.boxplot(data=data,x=data["loan_amnt "])
+sns.boxplot(data=data,x=data["annual_inc"])
+sns.boxplot(data=data,x=data["pub_rec"])
+sns.boxplot(data=data,x=data["tot_colle_amt"])
+sns.boxplot(data=data,x=data["tot_curr_bal"])
+sns.boxplot(data=data,x=data["total_credits"])
+sns.boxplot(data=data,x=data["total_rec_int"])
+
+
+## histogtam plot of all varible 
+data.hist(bins=30, figsize=(20, 10))
+
+## checking any duplcate
+##data.drop_duplicates(subset='member_id ', keep="last")
+##df = data.drop_duplicates()
+##df.count()
+##data.count()
+
+
+## missing value
+data_selected = data.drop(["member_id ","batch_ID ","Emp_designation","mths_since_last_major_derog","total_rec_late_fee","tot_colle_amt","acc_now_delinq",
+                           "verification_status_joint","mths_since_last_record","mths_since_last_delinq","collection_recovery_fee","collections_12_mths_ex_med"], axis=1)
+
+data_selected1 = data.drop(["member_id ","batch_ID ","loan_amnt ","acc_now_delinq","grade","sub_grade","total_credits",
+                           "Rate_of_intrst","annual_inc","mths_since_last_delinq","numb_credit","State"], axis=1)
+
+
+data_selected.shape
+data_selected.isnull().sum()
+
+data_num = data_selected1.select_dtypes(include = ['float64', 'int64'])
+data_num.columns.tolist()
+data_num.fillna(data_num.median(), inplace=True)
+data_num.isnull().sum()
+data_num.tail()
+data_num.shape
+
+# Normalization function 
+def norm_func(i):
+    x = (i-i.min())	/	(i.max()	-	i.min())
+    return (x)
+
+cols = list(data_num)
+cols.insert(0, cols.pop(cols.index('total revol_bal')))
+cols
+data_num = data_num.ix[:, cols]
+
+# Normalized data frame (considering the numerical part of data)
+df_norm = norm_func(data_num.iloc[:,1:])
+total = data_selected['total revol_bal']
+data_num = pd.concat([data_num.reset_index(drop=True), total], axis=1)
+
+
+data_cat = data_selected1.select_dtypes(include = ['object'])
+data_cat.isnull().sum()
+data_cat = data_cat.apply(lambda x:x.fillna(x.value_counts().index[0]))
+data_cat.iloc[:,-5]
+
+data_final = pd.concat([data_num.reset_index(drop=True), data_cat], axis=1)
+data_final.isnull().sum()
+data_final.shape
+
+## transform to numeric var
+### lable encoder
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+data_final.dtypes
+
+data_final["terms"] = le.fit_transform(data_final.terms)
+data_final["Experience"] = le.fit_transform(data_final.Experience)
+#data_final["grade"] = le.fit_transform(data_final.grade)
+#data_final["sub_grade"] = le.fit_transform(data_final.sub_grade)
+data_final["purpose"] = le.fit_transform(data_final.purpose)
+#data_final["State"] = le.fit_transform(data_final.State)
+data_final["Experience"] = le.fit_transform(data_final.Experience)
+data_final["home_ownership"] = le.fit_transform(data_final.home_ownership)
+data_final["application_type"] = le.fit_transform(data_final.application_type)
+data_final["last_week_pay"] = le.fit_transform(data_final.last_week_pay)
+data_final["initial_list_status"] = le.fit_transform(data_final.initial_list_status)
+data_final["Emp_designation"] = le.fit_transform(data_final.Emp_designation)
+data_final["verification_status_joint"] = le.fit_transform(data_final.verification_status_joint)
+data_final["verification_status"] = le.fit_transform(data_final.verification_status)
+
+data_final.dtypes
+data_final.shape
+
+
+data_final_outliers = data_final ### outlier data set
+data_final_outliers.dtypes
+
+## outlier handeling
+#df = data_final[["loan_amnt ","Rate_of_intrst","tot_curr_bal","annual_inc","total revol_bal","total_credits","numb_credit"]]
+df = data_final[["total revol_bal"]]
+
+df.columns.tolist()
+df.isnull().sum()
+
+fig_dims = (9, 5)
+fig, ax = plt.subplots(figsize=fig_dims)
+df.boxplot(ax=ax)
+
+for col in df.columns:
+    percentiles = df[col].quantile([0.10,0.90]).values
+    df[col][df[col] <= percentiles[0]] = percentiles[0]
+    df[col][df[col] >= percentiles[1]] = percentiles[1]
+    
+
+fig_dims = (9, 5)
+fig, ax = plt.subplots(figsize=fig_dims)
+df.boxplot(ax=ax,patch_artist=True)  
+  
+data_final['loan_amnt '] = df['loan_amnt '].replace(['loan_amnt '],'loan_amnt ')
+data_final['Rate_of_intrst'] = df['Rate_of_intrst'].replace(['Rate_of_intrst'],'Rate_of_intrst')
+data_final['tot_curr_bal'] = df['tot_curr_bal'].replace(['tot_curr_bal'],'tot_curr_bal')
+data_final['annual_inc'] = df['annual_inc'].replace(['annual_inc'],'annual_inc')
+data_final['total revol_bal'] = df['total revol_bal'].replace(['total revol_bal'],'total revol_bal')
+data_final['total_credits'] = df['total_credits'].replace(['total_credits'],'total_credits')
+data_final['numb_credit'] = df['numb_credit'].replace(['numb_credit'],'numb_credit')
+sns.boxplot(data=data_final,x=data_final["total revol_bal"])
+
+
+### checking normalization
+## density plot
+data_final.columns.tolist()
+
+sns.distplot(data_final['total revol_bal'])
+sns.distplot(data_final['loan_amnt '])
+sns.distplot(data_final['Rate_of_intrst'])
+sns.distplot(data_final['annual_inc'])
+sns.distplot(data_final['tot_colle_amt'])
+sns.distplot(data['tot_colle_amt'])
+
+## by histogram
+data_final.hist(bins=30, figsize=(20, 10))
+
+## by shapiro test
+stats.shapiro(data_final["loan_amnt "])   ## 0.91 >0.05 normaly distributed
+stats.shapiro(data_final["Rate_of_intrst"])
+stats.shapiro(data_final["annual_inc"])
+stats.shapiro(data_final["debt_income_ratio"])
+stats.shapiro(data_final["delinq_2yrs"])
+stats.shapiro(data_final["mths_since_last_delinq"])
+stats.shapiro(data_final["numb_credit"])
+stats.shapiro(data_final["total revol_bal"])
+stats.shapiro(data_final["tot_colle_amt"])  ## not normally distributed
+stats.shapiro(data_final["tot_curr_bal"])   ###
+stats.shapiro(data_final["last_week_pay"])   ###
+stats.shapiro(data_final["recoveries"])   ###
+stats.shapiro(data_final["mths_since_last_record"])   ### 
+stats.shapiro(data_final["total_rec_late_fee"])   ### 
+
+
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+def calc_vif(X):
+
+    # Calculating VIF
+    vif = pd.DataFrame()
+    vif["variables"] = X.columns
+    vif["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+    return(vif)
+    
+X = data_final.iloc[:,:-1]
+calc_vif(X)
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Muliple regression
+import pandas as pd
+from sklearn import linear_model
+import statsmodels.api as sm
+data_final = data_final.rename(columns={'loan_amnt ': 'loan_amnt', 'total revol_bal': 'total_revol_bal'})
+
+feature_cols1 = data_final.drop(['total_revol_bal','terms','last_week_pay','grade','delinq_2yrs','sub_grade','State','member_id ','debt_income_ratio'], axis=1)
+feature_cols = list(feature_cols1)
+
+
+X=data_final[feature_cols]
+Y=data_final[["total_revol_bal"]]
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=0)
+
+
+# with sklearn
+regr = linear_model.LinearRegression()
+regr.fit(X_train, y_train)
+
+print('Intercept: \n', regr.intercept_)
+print('Coefficients: \n', regr.coef_)
+
+# with statsmodels
+model = sm.OLS(y_train, X_train).fit()
+predictions = model.predict(X_train) 
+ 
+print(print_model)
+
+Y["rf_pred"] = model.predict(X)
+
+errors = abs(y_pred - y_test)
+y_pred = model.predict(X_test)
+
+print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
+print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
+print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+
+
+
+
+
+data_final.columns.tolist() 
+### Splitting the data into train and test data 
+data_final = data_final.rename(columns={'loan_amnt ': 'loan_amnt', 'total revol_bal': 'total_revol_bal'})
+from sklearn.model_selection import train_test_split
+data_train,data_test  = train_test_split(data_final,test_size = 0.3) # 30% size
+
+# preparing the model on train data 
+
+model_train = smf.ols("total_revol_bal~loan_amnt+Rate_of_intrst+annual_inc+debt_income_ratio+inq_last_6mths+delinq_2yrs+numb_credit+pub_rec+total_credits+total_rec_int+recoveries+grade+sub_grade+tot_curr_bal+terms+Experience+home_ownership+verification_status+purpose+State+application_type+last_week_pay",data = data_train).fit() 
+model_train.summary()
+
+# train_data prediction
+train_pred = model_train.predict(data_train)
+
+# train residual values 
+train_resid  = train_pred - data_train.total_revol_bal
+
+# RMSE value for train data 
+train_rmse = np.sqrt(np.mean(train_resid*train_resid))
+
+# prediction on test data set 
+test_pred = model_train.predict(data_test)
+
+# test residual values 
+test_resid  = test_pred - data_test.total_revol_bal
+
+# RMSE value for test data 
+test_rmse = np.sqrt(np.mean(test_resid*test_resid))
+
+rsq_hp = smf.ols("total_revol_bal~loan_amnt+Rate_of_intrst+annual_inc+debt_income_ratio+delinq_2yrs+numb_credit+pub_rec+total_credits+total_rec_int+recoveries+tot_curr_bal+terms+Experience+home_ownership+verification_status+application_type+last_week_pay",data = data_train).fit().rsquared  
+vif_hp = 1/(1-rsq_hp) 
+
+plt.scatter(data_test.total_revol_bal,test_pred,c="r");plt.xlabel("observed_values");plt.ylabel("fitted_values")
+
+plt.scatter(data_train.total_revol_bal,train_pred,c="r");plt.xlabel("observed_values");plt.ylabel("fitted_values")
+
+
+metrics.explained_variance_score(data_test['total_revol_bal'],test_pred)
+
+import seaborn as sns
+plt.figure(figsize=(5, 7))
+ax = sns.distplot(data_test['total_revol_bal'], hist=False, color="r", label="Actual Value")
+sns.distplot(test_pred, hist=False, color="b", label="Fitted Values" , ax=ax)
+plt.title('Actual vs Fitted Values for Price')
+plt.xlabel('total revolving balance ')
+plt.show()
+plt.close()
+
+
+#visualization
+plt.scatter(cars.new.Profit, pred_final,c="r"); plt.xlabel("Observed values"); plt.ylabel("Fitted Values")
+
+df = pd.DataFrame({'Actual': data_train.total_revol_bal, 'Predicted' : train_pred})
+df1 = df.head(30)
+df1.plot(kind= 'bar', figsize=(16,10))
+sns.distplot((y_test-y_pred))
+
+
+
+
+### modeling
+data_final = data_final.rename(columns={'loan_amnt ': 'loan_amnt', 'total revol_bal': 'total_revol_bal'})
+#data_final_outliers = data_final_outliers.rename(columns={'loan_amnt ': 'loan_amnt', 'total revol_bal': 'total_revol_bal'})
+
+data_final.dtypes
+data_final.columns.tolist()
+
+
+
+
+X = data_final['tot_curr_bal'].values.reshape(-1,1)
+Y = data_final['total_revol_bal'].values.reshape(-1,1)
+
+# Mean X and Y
+mean_x = np.mean(X)
+mean_y = np.mean(Y)
+ 
+# Total number of values
+n = len(X)
+ 
+# Using the formula to calculate m and c
+numer = 0
+denom = 0
+for i in range(n):
+    numer += (X[i] - mean_x) * (Y[i] - mean_y)
+    denom += (X[i] - mean_x) ** 2
+m = numer / denom
+c = mean_y - (m * mean_x)
+ 
+# Print coefficients
+print(m, c)
+
+# Plotting Values and Regression Line
+max_x = np.max(X) + 100
+min_x = np.min(X) - 100
+# Calculating line values x and y
+x = np.linspace(min_x, max_x, 1000)
+y = c + m * x 
+ 
+from sklearn.model_selection import train_test_split 
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2, random_state=0)
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X_train,y_train)
+print(regressor.intercept_)
+print(regressor.coef_)
+
+r_sq = regressor.score(X, Y)
+print('coefficient of determination:', r_sq)
+
+y_pred = regressor.predict(X_test)
+df = pd.DataFrame({'Actual': y_test.flatten(), 'Predicted' : y_pred.flatten()})
+
+df1 = df.head(30)
+df1.plot(kind= 'bar', figsize=(16,10))
+sns.distplot((y_test-y_pred))
+
+
+from sklearn import metrics
+print(metrics.mean_absolute_error(y_test,y_pred))
+
+
+from sklearn.metrics import r2_score
+x = data_final['loan_amnt'].values.reshape(-1,1)
+y = data_final['total_revol_bal'].values.reshape(-1,1)
+
+
+
+# Ploting Line
+plt.plot(x, y, color='#52b920', label='Regression Line')
+# Ploting Scatter Points
+plt.scatter(X, Y, c='#ef4423', label='Scatter Plot') 
+plt.xlabel('Head Size in cm3')
+plt.ylabel('Brain Weight in grams')
+plt.legend()
+plt.show()
+
+
+
+import statsmodels.formula.api as smf
+from sklearn.metrics import classification_report
+
+model=smf.ols("total_revol_bal~loan_amnt",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~Rate_of_intrst",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~annual_inc",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~debt_income_ratio",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~delinq_2yrs",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~numb_credit",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~total_credits",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~total_rec_int",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~total_rec_late_fee",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~recoveries",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~tot_colle_amt",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~tot_curr_bal",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~home_ownership",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~application_type",data=data_final).fit()
+model.summary()
+model=smf.ols("total_revol_bal~pub_rec",data=data_final).fit()
+model.summary()
+
+
+### multi linear
+ml_v=smf.ols("total_revol_bal~loan_amnt+Rate_of_intrst+annual_inc+debt_income_ratio+delinq_2yrs+numb_credit+pub_rec+total_revol_bal+total_credits+total_rec_int+recoveries+tot_curr_bal+terms+Experience+home_ownership+verification_status+application_type+last_week_pay",data = data_final).fit() 
+ml_v.summary()
+ml_v.params
+
+import statsmodels.api as sm
+sm.graphics.influence_plot(ml_v)
+
+
+### random forest
+data_final = data_final.rename(columns={'loan_amnt ': 'loan_amnt', 'total revol_bal': 'total_revol_bal'})
+data_final.shape
+cols = list(data_final)
+cols.insert(24, cols.pop(cols.index('total_revol_bal')))
+cols
+data_final = data_final.ix[:, cols]
+
+
+X = data_final.drop('total_revol_bal',axis=1)
+y = data_final['total_revol_bal']
+
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+
+from sklearn.ensemble import RandomForestRegressor
+regressor = RandomForestRegressor(n_estimators = 300, random_state = 30, oob_score=True)
+regressor.fit(X_train, y_train)
+
+y_pred = regressor.predict(X_test)
+
+df=pd.DataFrame({'Actual':y_test, 'Predicted':y_pred})
+df
+
+from sklearn import metrics
+print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
+print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
+print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+
+
+# Calculate the absolute errors
+errors = abs(y_pred - y_test)
+# Print out the mean absolute error (mae)
+print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+
+# Calculate mean absolute percentage error (MAPE)
+mape = 100 * (errors / y_test)
+# Calculate and display accuracy
+accuracy = 100 - np.mean(mape)
+print('Accuracy:', round(accuracy, 2), '%.')
+
+
+import seaborn as sns
+plt.figure(figsize=(5, 7))
+ax = sns.distplot(y, hist=False, color="r", label="Actual Value")
+sns.distplot(y_pred, hist=False, color="b", label="Fitted Values" , ax=ax)
+
+plt.title('Actual vs Fitted Values for Price')
+plt.show()
+plt.close()
+
+Tree = regressor.estimators_[5]
+# Export the image to a dot file
+from sklearn import tree
+plt.figure(figsize=(25,15))
+tree.plot_tree(Tree,filled=True, 
+              rounded=True, 
+              fontsize=14);
+
+
+
+### dtree
+data_final = data_final.rename(columns={'loan_amnt ': 'loan_amnt', 'total revol_bal': 'total_revol_bal'})
+               
+X = data_final.drop(['total_revol_bal','application_type','State','member_id ','pub_rec','last_week_pay','recoveries','terms','verification_status','delinq_2yrs','debt_income_ratio'],axis=1)
+data_final.columns.tolist() 
+y = data_final['total_revol_bal']
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)               
+
+from sklearn.tree import DecisionTreeRegressor
+regressor = DecisionTreeRegressor(max_depth = 7)
+regressor.fit(X_train, y_train) 
+
+y_pred = regressor.predict(X_test)
+
+df=pd.DataFrame({'Actual':y_test, 'Predicted':y_pred})
+df 
+
+errors = abs(y_pred - y_test)
+# Print out the mean absolute error (mae)
+print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+
+# Calculate mean absolute percentage error (MAPE)
+mape = 100 * (errors / y_test)
+# Calculate and display accuracy
+accuracy = 100 - np.mean(mape)
+print('Accuracy:', round(accuracy, 2), '%.')            
+               
+import seaborn as sns
+plt.figure(figsize=(5, 7))
+ax = sns.distplot(y, hist=False, color="r", label="Actual Value")
+sns.distplot(y_pred, hist=False, color="b", label="Fitted Values" , ax=ax)
+plt.title('Actual vs Fitted Values for Price')
+plt.xlabel('Price (in dollars)')
+plt.ylabel('Proportion of Cars')
+plt.show()
+plt.close()
+
+
+
+## Random forest Actual
+
+data_final = data_final.rename(columns={'loan_amnt ': 'loan_amnt', 'total revol_bal': 'total_revol_bal'})
+data_final.shape
+cols = list(data_final)
+cols.insert(24, cols.pop(cols.index('total_revol_bal')))
+cols
+data_final = data_final.ix[:, cols]
+
+data_final.isnull().sum()
+data_final["total_revol_bal"].max()
+data_final["total_revol_bal"].mean()
+data_final["total_revol_bal"].min()
+data_final.head()
+
+data_final["output"] = pd.cut(data_final.total_revol_bal, bins = [3418.8,14568.5,33478.0], labels =['better','Good'])
+data_final['output'].unique()
+data_final["output"].isnull().sum()
+
+feature_cols1 = data_final.drop(['output','total_revol_bal'], axis=1)
+feature_cols = list(feature_cols1)
+
+
+iX=data_final[feature_cols]
+iy=data_final[["output"]]
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split 
+X_train, X_test, y_train, y_test = train_test_split(iX, iy, test_size = 0.2, random_state=0)
+
+rfiris = RandomForestClassifier(n_jobs=4,oob_score=True,n_estimators=100,criterion="entropy")
+rfiris.fit(X_train,y_train)
+predictions = rfiris.predict(iX)
+
+a = pd.DataFrame({'feature':feature_cols, 'importance':rfiris.feature_importances_})
+
+feature_importance = rfiris.feature_importances_
+features = feature_cols
+
+
+plt.figure(figsize=(16, 6))
+plt.yscale('log', nonposy='clip')
+plt.bar(range(len(feature_importance)), feature_importance, align='center')
+plt.xticks(range(len(feature_importance)), features, rotation='vertical')
+plt.title('Feature importance')
+plt.ylabel('Importance')
+plt.xlabel('Features')
+plt.show()
+
+# Get numerical feature importances
+importances = list(rfiris.feature_importances_)
+
+iy["rf_pred"] = rfiris.predict(iX)
+
+pd.crosstab(iy['output'],iy['rf_pred'])
+print("Accuracy",(510901+338294)/(17359+510901+338294+20825)*100)
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(data_final["output"],data_final["rf_pred"])  
+
+
+### test data
+rfiris.fit(X_test,y_test)
+iy["rf_pred_test"] = rfiris.predict(iX)
+
+aaa = pd.DataFrame({'feature':feature_cols, 'importance':rfiris.feature_importances_})
+
+feature_importance = rfiris.feature_importances_
+features = feature_cols
+
+
+plt.figure(figsize=(16, 6))
+plt.yscale('log', nonposy='clip')
+plt.bar(range(len(feature_importance)), feature_importance, align='center')
+plt.xticks(range(len(feature_importance)), features, rotation='vertical')
+plt.title('Feature importance')
+plt.ylabel('Importance')
+plt.xlabel('Features')
+plt.show()
+
+pd.crosstab(iy['output'],iy['rf_pred_test'])
+print("Accuracy",(459103+274129)/(69157+459103+274129+84990)*100)
+
+
+rfiris.oob_score_ 
+rfiris.n_outputs_ 
+rfiris.n_features_
+
+
+pd.crosstab(data_final['output'],data_final['rf_pred'])
+print("Accuracy",(606616+154017)/(44589+606616+154017+82157)*100)
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(data_final["output"],data_final["rf_pred"]) # 100 Percent +215991)/(10909+640296+215991+20183)*100)
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(data_final["output"],data_final["rf_pred"]) 
