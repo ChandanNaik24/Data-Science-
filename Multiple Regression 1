@@ -1,0 +1,61 @@
+toy <- read.csv(file.choose()) 
+View(toy) 
+attach(toy) 
+toy_c <- toy[1:1436,c(3,4,7,9,13,14,16,17,18)] 
+View(toy_c) 
+summary(toy_c) 
+library(psych) 
+pairs.panels(toy_c) 
+cor(toy_c) 
+library(corpcor) 
+cor2pcor(cor(toy_c)) 
+model.toy_c <- lm(Price~.,data = toy_c) 
+summary(model.toy_c) 
+model.toycc <- lm(Price~cc,data = toy_c) 
+summary(model.toycc) 
+model_toyd <- lm(Price~Doors,data = toy_c) 
+summary(model_toyd) 
+model.toyccd <- lm(Price~cc+Doors, data = toy_c) 
+summary(model.toyccd) 
+library(car) 
+vif(model.toy_c) 
+avPlots(model.toy_c,id.n=2,id.cex=0.7) 
+influenceIndexPlot(model.toy_c,id.n=3) 
+influencePlot(model.toy_c,id.n=3) 
+model_1 <- lm(Price~.-cc,data = toy_c[-81]) 
+summary(model_1) 
+model_2 <- lm(Price~.-cc,data = toy_c[-c(81,222),]) 
+summary(model_2) 
+model_3 <- lm(Price~.-cc,data = toy_c[-c(81,961),]) 
+summary(model_3) 
+model_4 <- lm(Price~.,data = toy_c[-81]) 
+summary(model_4) 
+model_5 <- lm(Price~., data = toy_c[-c(81,222),]) 
+summary(model_5) 
+model_6 <- lm(Price~.,data = toy_c[-c(81,222,961),]) 
+summary(model_6) 
+final_model <- lm(Price~.,data = toy_c[-c(81,222,961),]) 
+summary(final_model) 
+
+Call: 
+lm(formula = Price ~ ., data = toy_c[-c(81, 222, 961), ]) 
+Residuals: 
+Min 1Q Median 3Q Max 
+-8756.8 -761.3 -31.7 720.6 6306.6
+
+Coefficients: 
+Estimate Std. Error t value Pr(>|t|) 
+(Intercept) -1.474e+04 1.433e+03 -10.289 < 2e-16 *** 
+Age_08_04 -1.120e+02 2.479e+00 -45.185 < 2e-16 *** 
+KM -1.699e-02 1.200e-03 -14.160 < 2e-16 *** 
+HP 3.661e+01 2.745e+00 13.334 < 2e-16 *** 
+cc -3.795e+00 3.021e-01 -12.562 < 2e-16 *** 
+Doors -1.225e+02 3.748e+01 -3.270 0.00110 ** 
+Gears 4.650e+02 1.810e+02 2.569 0.01029 * 
+Quarterly_Tax 5.213e+00 1.371e+00 3.802 0.00015 *** 
+Weight 3.064e+01 1.290e+00 23.748 < 2e-16 *** 
+--- 
+Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+Residual standard error: 1231 on 1424 degrees of freedom 
+Multiple R-squared: 0.8852, Adjusted R-squared: 0.8845 
+F-statistic: 1372 on 8 and 1424 DF, p-value: < 2.2e-16
