@@ -1,0 +1,28 @@
+Library(readr)
+Costomer_OrderForm <- read_csv("Costomer+OrderForm.csv")
+Parsed with column specification:
+cols(
+  Phillippines = col_character(),
+  Indonesia = col_character(),
+  Malta = col_character(),
+  India = col_character()
+)
+> View(Costomer_OrderForm)
+
+# Converting data to 'two variable column' by stack() function to proceed with Chi-square function.
+
+> st<-stack(Costomer_OrderForm)
+> View(st)
+
+# Hypothesis testing by Chi-square test method
+# Ho= Defective % Doesnot varies by centres
+# Ha= Defective % varies by centres
+
+> chisq.test(st$values,st$ind)
+
+	Pearson's Chi-squared test
+
+data:  st$values and st$ind
+X-squared = 3.859, df = 3, p-value = 0.2771
+
+# p-value > 0.05, thus NULL (Ho) hypothesis cannot be rejected.
