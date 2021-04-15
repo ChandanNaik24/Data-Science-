@@ -1,0 +1,457 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from numpy import percentile
+
+
+# In[2]:
+
+
+Camp =  pd.read_csv("C:/Users/User/Downloads/data.csv")
+
+
+# ## Exploratory Data Analysis
+
+# In[ ]:
+
+
+### Checking the first 10 columns ###
+
+
+# In[3]:
+
+
+Camp.head(10)
+
+
+# In[ ]:
+
+
+### Checking the last 10 columns ###
+
+
+# In[4]:
+
+
+Camp.tail(10)
+
+
+# In[ ]:
+
+
+### Checking the number of columns ###
+
+
+# In[5]:
+
+
+Camp.columns
+
+
+# In[ ]:
+
+
+### Checking the total number of columns & row's in the data set ###
+
+
+# In[6]:
+
+
+Camp.shape
+
+
+# In[ ]:
+
+
+### Checking the Mean, Median Mode & SD of data set ###
+
+
+# In[7]:
+
+
+Camp.describe()
+
+
+# In[ ]:
+
+
+### Checking for the duplicates ###
+
+
+# In[8]:
+
+
+Camp.duplicated()
+
+
+# In[ ]:
+
+
+### Checking the data types ###
+
+
+# In[9]:
+
+
+Camp.dtypes
+
+
+# In[ ]:
+
+
+### Checking for the uniques variables in data set ###e
+
+
+# In[10]:
+
+
+Camp.nunique()
+
+
+# In[ ]:
+
+
+### Checking for the unique variable for each varible ###
+
+
+# In[14]:
+
+
+Camp['date'].unique()
+
+
+# In[15]:
+
+
+Camp['campaign'].unique()
+
+
+# In[16]:
+
+
+Camp['adgroup'].unique()
+
+
+# In[17]:
+
+
+Camp['ad'].unique()
+
+
+# In[18]:
+
+
+Camp['conversions'].unique()
+
+
+# ## Data Cleaning or Data Wrangling 
+
+# In[ ]:
+
+
+### Checking for Missing Values in data set ###
+
+
+# In[19]:
+
+
+Camp.isna()
+
+
+# In[ ]:
+
+
+### Checking for percentage of missinf values ###
+
+
+# In[20]:
+
+
+Camp.isna().sum()
+
+
+# In[ ]:
+
+
+### Checking the frequency of missing value ###
+
+
+# In[21]:
+
+
+Camp.isna().sum().sum()
+
+
+# ### Relationship Analysis 
+
+# In[ ]:
+
+
+## 1. Heat Map
+
+
+# In[23]:
+
+
+corelation_credit = Camp.corr()
+
+
+# In[24]:
+
+
+sns.heatmap(corelation_credit,xticklabels=corelation_credit.columns,yticklabels=corelation_credit.columns,annot=True)
+sns.set(rc={'figure.figsize':(20,20)})
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+### 3. Scatter Plot 
+
+
+# In[4]:
+
+
+sns.set(rc={'figure.figsize':(10,10)})
+sns.scatterplot(x="impressions",y="revenue",data=Camp)
+
+
+# In[5]:
+
+
+sns.set(rc={'figure.figsize':(10,10)})
+sns.scatterplot(x="clicks",y="revenue",data=Camp)
+
+
+# In[10]:
+
+
+sns.set(rc={'figure.figsize':(10,10)})
+sns.scatterplot(x="ad",y="revenue", hue='adgroup', data=Camp)
+
+
+# In[11]:
+
+
+sns.set(rc={'figure.figsize':(10,10)})
+sns.scatterplot(x="cost",y="revenue", hue='adgroup', data=Camp)
+
+
+# In[ ]:
+
+
+### Relationshop with categorical variables: 
+
+#4. Stripe Plots
+
+
+# In[13]:
+
+
+sns.stripplot(x ='date', y ='revenue', data = Camp)
+
+
+# In[14]:
+
+
+sns.stripplot(x ='campaign', y ='revenue', data = Camp)
+
+
+# In[15]:
+
+
+sns.stripplot(x ='adgroup', y ='revenue', data = Camp)
+
+
+# In[17]:
+
+
+sns.stripplot(x ='impressions', y ='revenue', data = Camp)
+
+
+# In[ ]:
+
+
+#5. Density Plots :
+
+
+# In[20]:
+
+
+sns.distplot(Camp['cost'],hist=False, kde=True, color = 'darkblue',kde_kws={'shade': True,'linewidth': 4})
+
+#Formatting
+
+plt.title('Price plot with Mileage plot')
+plt.xlabel('cost')
+plt.ylabel('revenue')
+
+
+# In[25]:
+
+
+sns.distplot(Camp['clicks'],hist=False, kde=True, color = 'darkgreen',kde_kws={'shade': True,'linewidth': 4})
+
+#Formatting
+
+plt.title('Price plot with Mileage plot')
+plt.xlabel('clicks')
+plt.ylabel('revenue')
+
+
+# In[26]:
+
+
+sns.distplot(Camp['conversions'],hist=False, kde=True, color = 'darkred',kde_kws={'shade': True,'linewidth': 4})
+
+#Formatting
+
+plt.title('Price plot with Mileage plot')
+plt.xlabel('conversions')
+plt.ylabel('revenue')
+
+
+# In[ ]:
+
+
+### 5. Distribution Plot
+
+
+# In[28]:
+
+
+sns.distplot(Camp['revenue'])
+
+
+# In[29]:
+
+
+sns.distplot(Camp['conversions'])
+
+
+# In[30]:
+
+
+sns.distplot(Camp['cost'])
+
+
+# In[31]:
+
+
+sns.distplot(Camp['impressions'])
+
+
+# In[32]:
+
+
+sns.distplot(Camp['clicks'])
+
+
+# In[ ]:
+
+
+### Checking for outliers ##
+
+
+# In[41]:
+
+
+sns.catplot(x="impressions",kind='box',data=Camp)
+
+
+# In[42]:
+
+
+sns.catplot(x="clicks",kind='box',data=Camp)
+
+
+# In[43]:
+
+
+sns.catplot(x="cost",kind='box',data=Camp)
+
+
+# In[44]:
+
+
+sns.catplot(x="conversions",kind='box',data=Camp)
+
+
+# In[45]:
+
+
+sns.catplot(x="revenue",kind='box',data=Camp)
+
+
+# In[ ]:
+
+
+### Outlier Treatment ###
+
+
+# In[67]:
+
+
+Camp1 = Camp[["impressions", "clicks", "cost","conversions", "revenue"]]
+Camp1.columns.tolist()
+
+
+# In[68]:
+
+
+sns.catplot(data=Camp1,kind='box')
+sns.set(rc={'figure.figsize':(50,40)})
+
+
+# In[79]:
+
+
+for col in Camp1.columns:
+    percentiles = Camp1[col].quantile([0.10,0.90]).values
+    print(percentiles)
+    Camp1[col][Camp1[col] <= percentiles[0]] = percentiles[0]
+    Camp1[col][Camp1[col] >= percentiles[1]] = percentiles[1]
+
+
+# In[80]:
+
+
+sns.boxplot("impressions", data=Camp1)
+
+
+# In[81]:
+
+
+sns.boxplot("clicks", data=Camp1)
+
+
+# In[82]:
+
+
+sns.boxplot("conversions", data=Camp1)
+
+
+# In[83]:
+
+
+sns.boxplot("cost", data=Camp1)
+
+
+# In[84]:
+
+
+sns.boxplot("revenue", data=Camp1)
